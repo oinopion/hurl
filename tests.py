@@ -1,4 +1,5 @@
 import unittest
+from django.conf.urls import include
 import hurl
 
 class BasicPatterns(unittest.TestCase):
@@ -9,6 +10,18 @@ class BasicPatterns(unittest.TestCase):
         })
         expected = (
             (r'^2003/$', '2003_view', {}, '2003_view'),
+        )
+        self.assertSequenceEqual(result, expected)
+
+    def test_with_callable(self):
+        def some_view(req):
+            return ''
+        h = hurl.Hurl()
+        result = h.patterns('', {
+            '2003': some_view,
+        })
+        expected = (
+            (r'^2003/$', some_view, {}, 'some_view'),
         )
         self.assertSequenceEqual(result, expected)
 
@@ -125,6 +138,18 @@ class BasicPatterns(unittest.TestCase):
         )
         self.assertSequenceEqual(result, expected)
 
+    def test_empty_nested_url(self):
+        h = hurl.Hurl()
+        result = h.patterns('', {
+            'bla': {
+                '': 'details',
+            }
+        })
+        expected = (
+            (r'^bla/$', 'details', {}, 'details'),
+        )
+        self.assertSequenceEqual(result, expected)
+
     def test_no_name_only_type(self):
         h = hurl.Hurl()
         result = h.patterns('', {
@@ -144,4 +169,21 @@ class BasicPatterns(unittest.TestCase):
         expected = (
             (r'^(?P<id>\d+)/$', 'news.views.details', {}, 'news_details'),
             )
+        self.assertSequenceEqual(result, expected)
+
+    def test_include(self):
+        h = hurl.Hurl()
+        urlpatterns = h.patterns('', {
+            '<id:int>': 'news.views.details',
+        })
+        result = h.patterns('', {
+            '<id:int>': {
+                '': 'news.views.details',
+                'comments': include(urlpatterns)
+            }
+        })
+        expected = (
+            (r'^(?P<id>\d+)/$', 'news.views.details', {}, 'details'),
+            (r'^(?P<id>\d+)/comments/$', (urlpatterns, None, None)),
+        )
         self.assertSequenceEqual(result, expected)

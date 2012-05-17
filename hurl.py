@@ -21,10 +21,13 @@ class Hurl(object):
         urls = []
         for url, view in pattern_dict.items():
             re_str = self.make_re_str(url)
-            if type(view) == dict:
+            if isinstance(view, dict):
                 re_list = self.patterns_recursive(view)
-                for p, v in re_list:
-                    urls.append((re_str + '/' + p, v))
+                for pattern, view_name in re_list:
+                    if pattern == '':
+                        urls.append((re_str, view_name))
+                    else:
+                        urls.append((re_str + '/' + pattern, view_name))
             else:
                 urls.append((re_str, view))
         return urls
@@ -38,7 +41,10 @@ class Hurl(object):
     def add_views_prefix(self, prefix, urls):
         new_urls = []
         for url, view in urls:
-            full_view_name = '.'.join((prefix, view))
+            if isinstance(view, basestring):
+                full_view_name = '.'.join((prefix, view))
+            else:
+                full_view_name = view
             new_urls.append((url, full_view_name))
         return new_urls
 
@@ -82,8 +88,19 @@ class Hurl(object):
     def add_names(self, urls):
         new_urls = []
         for url, view in urls:
-            name = view.split('.')[-1]
-            if self.name_prefix:
-                name = '{prefix}_{name}'.format(prefix=self.name_prefix, name=name)
-            new_urls.append((url, view, {}, name))
+            if isinstance(view, basestring):
+                name = view.split('.')[-1]
+                if self.name_prefix:
+                    name = '{prefix}_{name}'.format(prefix=self.name_prefix, name=name)
+                new_urls.append((url, view, {}, name))
+            elif callable(view):
+                name = getattr(view, 'func_name')
+                if name:
+                    if self.name_prefix:
+                        name = '{prefix}_{name}'.format(prefix=self.name_prefix, name=name)
+                    new_urls.append((url, view, {}, name))
+                else:
+                    new_urls.append((url, view))
+            else:
+                new_urls.append((url, view))
         return new_urls

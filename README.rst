@@ -37,6 +37,17 @@ Better way of writing urls would be:
         }),
     )
 
+    urlpatterns = hurl.patterns('blog.entries.views', {
+        '': 'recent_entries',
+        '<entry_slug:str>': {
+            '': 'show_entry',
+            'delete': 'delete_entry',
+            'edit': 'delete_entry',
+            'new': 'delete_entry',
+            'comments': include('apps.urls'),
+        }),
+    )
+
 It conveys url structure more clearly
 
 Happy URLs
