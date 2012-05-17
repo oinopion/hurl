@@ -23,7 +23,7 @@ It has many issues:
 - you repeat the base url 'entries'
 - you repeat the entry_slug url
 - you need to remember arcane named group syntax
-- you repeat the [\w-]+ group
+- you repeat the [\\w-]+ group
 - you associate name with urls conf
 
 Better way of writing urls would be::
