@@ -59,7 +59,7 @@ hurl.matchers['day'] = r'\d{2}'
 urlpatterns = hurl.patterns('', 'articles', {
     '2003': 'news.views.special_case_2003',
     '<year>': 'news.views.year_archive',
-    '<year>/<month:month2>': 'news.views.month_archive',
+    '<year>/<month>': 'news.views.month_archive',
     '<year>/<month>/<day>': 'news.views.article_detail',
 })
 
