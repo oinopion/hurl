@@ -8,7 +8,7 @@ class BasicPatterns(unittest.TestCase):
             '2003': '2003_view',
         })
         expected = (
-            (r'^2003/$', '2003_view'),
+            (r'^2003/$', '2003_view', {}, '2003_view'),
         )
         self.assertSequenceEqual(result, expected)
 
@@ -18,7 +18,7 @@ class BasicPatterns(unittest.TestCase):
             '<id:int>': 'news.views.details',
         })
         expected = (
-            (r'^(?P<id>\d+)/$', 'news.views.details'),
+            (r'^(?P<id>\d+)/$', 'news.views.details', {}, 'details'),
         )
         self.assertSequenceEqual(result, expected)
 
@@ -30,7 +30,7 @@ class BasicPatterns(unittest.TestCase):
             }
         })
         expected = (
-            (r'^articles/(?P<id>\d+)/(?P<id2>\d+)/$', 'news.views.details'),
+            (r'^articles/(?P<id>\d+)/(?P<id2>\d+)/$', 'news.views.details', {}, 'details'),
         )
         self.assertSequenceEqual(result, expected)
 
@@ -46,9 +46,9 @@ class BasicPatterns(unittest.TestCase):
                 }
             })
             expected = (
-                (r'^articles/(?P<id>\d+)/(?P<id2>\d+)/$', 'news.views.details'),
-                (r'^articles/text/author/(?P<author_id>\d+)/$', 'news.views.author_details'),
-                (r'^articles/text/author/archive/(?P<author_id>\d+)/$', 'news.views.archive'),
+                (r'^articles/(?P<id>\d+)/(?P<id2>\d+)/$', 'news.views.details', {}, 'details'),
+                (r'^articles/text/author/(?P<author_id>\d+)/$', 'news.views.author_details', {}, 'author_details'),
+                (r'^articles/text/author/archive/(?P<author_id>\d+)/$', 'news.views.archive', {}, 'archive'),
             )
             self.assertItemsEqual(result, expected)
 
@@ -58,6 +58,90 @@ class BasicPatterns(unittest.TestCase):
             '<id:slug>': 'news.views.details',
         })
         expected = (
-            (r'^(?P<id>[\w-]+)/$', 'news.views.details'),
+            (r'^(?P<id>[\w-]+)/$', 'news.views.details', {}, 'details'),
         )
+        self.assertSequenceEqual(result, expected)
+
+    def test_custom_named_type(self):
+        h = hurl.Hurl()
+        h.matchers['year'] = r'\d{4}'
+        result = h.patterns('', {
+            '<year:year>': 'news.views.details',
+        })
+        expected = (
+            (r'^(?P<year>\d{4})/$', 'news.views.details', {}, 'details'),
+        )
+        self.assertSequenceEqual(result, expected)
+
+    def test_custom_guessed_named_type(self):
+        h = hurl.Hurl()
+        h.matchers['year'] = r'\d{4}'
+        result = h.patterns('', {
+            '<year>': 'news.views.details',
+        })
+        expected = (
+            (r'^(?P<year>\d{4})/$', 'news.views.details', {}, 'details'),
+        )
+        self.assertSequenceEqual(result, expected)
+
+    def test_default_type_is_slug(self):
+        h = hurl.Hurl()
+        result = h.patterns('', {
+            '<year>': 'news.views.details',
+        })
+        expected = (
+            (r'^(?P<year>[\w-]+)/$', 'news.views.details', {}, 'details'),
+        )
+        self.assertSequenceEqual(result, expected)
+
+    def test_setting_custom_default_type(self):
+        h = hurl.Hurl()
+        h.default_matcher = 'int'
+        result = h.patterns('', {
+            '<year>': 'news.views.details',
+        })
+        expected = (
+            (r'^(?P<year>\d+)/$', 'news.views.details', {}, 'details'),
+        )
+        self.assertSequenceEqual(result, expected)
+
+    def test_prefixing_view_names(self):
+        h = hurl.Hurl()
+        result = h.patterns('news.views', {
+            '<year>': 'details',
+        })
+        expected = (
+            (r'^(?P<year>[\w-]+)/$', 'news.views.details', {}, 'details'),
+        )
+        self.assertSequenceEqual(result, expected)
+
+    def test_empty_url(self):
+        h = hurl.Hurl()
+        result = h.patterns('', {
+            '': 'details',
+        })
+        expected = (
+            (r'^/$', 'details', {}, 'details'),
+        )
+        self.assertSequenceEqual(result, expected)
+
+    def test_no_name_only_type(self):
+        h = hurl.Hurl()
+        result = h.patterns('', {
+            '<:int>': 'details',
+        })
+        expected = (
+            (r'^(\d+)/$', 'details', {}, 'details'),
+        )
+        self.assertSequenceEqual(result, expected)
+
+
+    def test_name_prefix(self):
+        h = hurl.Hurl(name_prefix='news')
+        result = h.patterns('', {
+            '<id:int>': 'news.views.details',
+            })
+        expected = (
+            (r'^(?P<id>\d+)/$', 'news.views.details', {}, 'news_details'),
+            )
         self.assertSequenceEqual(result, expected)

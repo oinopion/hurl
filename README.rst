@@ -25,7 +25,7 @@ It has many issues:
 
 Better way of writing urls would be:
 
-    urlpatterns = hurl.patterns('blog.entries.views', 'entries/', {
+    urlpatterns = hurl.patterns('blog.entries.views', {
         '': 'recent_entries',
         '<entry_slug:str>': {
             '': 'show_entry',
@@ -43,7 +43,7 @@ Happy URLs
 
 # original:
 urlpatterns = patterns('',
-    (r'^articles/2003/$', 'news.views.special_case_2003'),
+    (r'^articles/2003/$', 'news.views.special_case_2003', {}, 'news_special_case_2003'),
     (r'^articles/(?P<year>\d{4})/$', 'news.views.year_archive'),
     (r'^articles/(?P<year>\d{4})/(?P<month>\d{2})/$', 'news.views.month_archive'),
     (r'^articles/(?P<year>\d{4})/(?P<month>\d{2})/(?P<day>\d{2})/$', 'news.views.article_detail'),

@@ -1,15 +1,20 @@
 class Hurl(object):
+    default_matcher = 'slug'
     DEFAULT_MATCHERS = {
         'int': r'\d+',
         'slug': r'[\w-]+'
     }
 
-    def __init__(self):
+    def __init__(self, name_prefix=''):
+        self.name_prefix = name_prefix
         self.matchers = dict(self.DEFAULT_MATCHERS)
 
     def patterns(self, prefix, pattern_dict):
         urls = self.patterns_recursive(pattern_dict)
         urls = self.add_prefix_suffix(urls)
+        if prefix:
+            urls = self.add_views_prefix(prefix, urls)
+        urls = self.add_names(urls)
         return urls
 
     def patterns_recursive(self, pattern_dict):
@@ -30,6 +35,13 @@ class Hurl(object):
             formatted_urls.append(('^{url}/$'.format(url=url), view))
         return formatted_urls
 
+    def add_views_prefix(self, prefix, urls):
+        new_urls = []
+        for url, view in urls:
+            full_view_name = '.'.join((prefix, view))
+            new_urls.append((url, full_view_name))
+        return new_urls
+
     def make_re_str(self, url):
         parts = []
         s = ''
@@ -47,15 +59,31 @@ class Hurl(object):
 
     def transform(self, pattern):
         parts = pattern.split(':')
-        if 0 < len(parts) < 2:
-            raise StandardError('Fix')
+        if len(parts) == 1:
+            name = parts[0]
+            type = name
         elif len(parts) == 2:
             name, type = parts
         else:
-            name = parts[0]
-            type = 'str'
+            raise StandardError('Fix')
         matcher = self.generate_matcher(type)
-        return r'(?P<{name}>{matcher})'.format(name=name, matcher=matcher)
+        if name:
+            return r'(?P<{name}>{matcher})'.format(name=name, matcher=matcher)
+        else:
+            return r'({matcher})'.format(matcher=matcher)
+
 
     def generate_matcher(self, type):
-        return self.matchers[type]
+        try:
+            return self.matchers[type]
+        except KeyError:
+            return self.matchers[self.default_matcher]
+
+    def add_names(self, urls):
+        new_urls = []
+        for url, view in urls:
+            name = view.split('.')[-1]
+            if self.name_prefix:
+                name = '{prefix}_{name}'.format(prefix=self.name_prefix, name=name)
+            new_urls.append((url, view, {}, name))
+        return new_urls
