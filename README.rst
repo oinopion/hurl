@@ -70,3 +70,4 @@ Django tutorial::
             '<year>/<month>/<day>': 'article_detail',
         }
     })
+
