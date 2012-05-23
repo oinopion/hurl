@@ -20,7 +20,6 @@ Consider a standard urls.py::
 It has many issues:
 
 - you need to remember about the '^' and the '$'
-- you repeat the base url 'entries'
 - you repeat the entry_slug url
 - you need to remember arcane named group syntax
 - you repeat the [\\w-]+ group
