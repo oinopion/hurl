@@ -8,13 +8,13 @@ urls a breeze.
 Consider a standard urls.py::
 
     urlpatterns = patterns('blog.entries.views',
-        url(r'^entries/$', 'recent_entries', name='entries_recent_entries'),
-        url(r'^entries/(?P<entry_slug>[\w-]+)/$', 'show_entry', name='entries_show_entry'),
-        url(r'^entries/(?P<entry_slug>[\w-]+)/new/$', 'new_entry', name='entries_new_entry'),
-        url(r'^entries/(?P<entry_slug>[\w-]+)/edit/$', 'edit_entry', name='entries_edit_entry'),
-        url(r'^entries/(?P<entry_slug>[\w-]+)/delete/$', 'delete_entry', name='entries_delete_entry'),
-        url(r'^entries/(?P<entry_slug>[\w-]+)/comments/$', 'comments_list', name='entries_comments_list'),
-        url(r'^entries/(?P<entry_slug>[\w-]+)/comments/(\d+)/$', 'comment_details', name='entries_comment_detail'),
+        url(r'^$', 'recent_entries', name='entries_recent_entries'),
+        url(r'^(?P<entry_slug>[\w-]+)/$', 'show_entry', name='entries_show_entry'),
+        url(r'^(?P<entry_slug>[\w-]+)/new/$', 'new_entry', name='entries_new_entry'),
+        url(r'^(?P<entry_slug>[\w-]+)/edit/$', 'edit_entry', name='entries_edit_entry'),
+        url(r'^(?P<entry_slug>[\w-]+)/delete/$', 'delete_entry', name='entries_delete_entry'),
+        url(r'^(?P<entry_slug>[\w-]+)/comments/$', 'comments_list', name='entries_comments_list'),
+        url(r'^(?P<entry_slug>[\w-]+)/comments/(\d+)/$', 'comment_details', name='entries_comment_detail'),
     )
 
 It has many issues:
