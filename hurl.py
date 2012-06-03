@@ -1,3 +1,5 @@
+from django.core.urlresolvers import RegexURLPattern
+
 class Hurl(object):
     default_matcher = 'slug'
     DEFAULT_MATCHERS = {
@@ -8,6 +10,13 @@ class Hurl(object):
     def __init__(self, name_prefix=''):
         self.name_prefix = name_prefix
         self.matchers = dict(self.DEFAULT_MATCHERS)
+
+    def urlpatterns(self, prefix, pattern_dict):
+        patterns = self.patterns(prefix, pattern_dict)
+        urlpatterns = []
+        for p in patterns:
+            urlpatterns.append(RegexURLPattern(*p))
+        return urlpatterns
 
     def patterns(self, prefix, pattern_dict):
         urls = self.patterns_recursive(pattern_dict)
@@ -35,7 +44,11 @@ class Hurl(object):
     def add_prefix_suffix(self, urls):
         formatted_urls = []
         for url, view in urls:
-            formatted_urls.append(('^{url}/$'.format(url=url), view))
+            if url != '':
+                url = '^{url}/$'.format(url=url)
+            else:
+                url = '^$'
+            formatted_urls.append((url, view))
         return formatted_urls
 
     def add_views_prefix(self, prefix, urls):
@@ -104,3 +117,9 @@ class Hurl(object):
             else:
                 new_urls.append((url, view))
         return new_urls
+
+
+def urlpatterns( prefix, pattern_dict):
+    h = Hurl()
+    return h.urlpatterns(prefix, pattern_dict)
+

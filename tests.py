@@ -1,5 +1,5 @@
 import unittest
-from django.conf.urls import include
+from django.conf.urls import include, patterns
 import hurl
 
 class BasicPatterns(unittest.TestCase):
@@ -134,7 +134,7 @@ class BasicPatterns(unittest.TestCase):
             '': 'details',
         })
         expected = (
-            (r'^/$', 'details', {}, 'details'),
+            (r'^$', 'details', {}, 'details'),
         )
         self.assertSequenceEqual(result, expected)
 
@@ -187,3 +187,13 @@ class BasicPatterns(unittest.TestCase):
             (r'^(?P<id>\d+)/comments/$', (urlpatterns, None, None)),
         )
         self.assertSequenceEqual(result, expected)
+
+    def test_regexurlpatter_returned(self):
+        h = hurl.Hurl()
+        urlpatterns = h.urlpatterns('', {
+            '<id:int>': 'news.views.details'
+        })
+        expected = patterns('',
+            (r'^(?P<id>[0-9]+)/', 'news.views.details', {}, 'news_details')
+        )
+        self.assertTrue(urlpatterns, expected)
