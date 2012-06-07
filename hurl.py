@@ -74,7 +74,7 @@ class Hurl(object):
             else:
                 s += c
         parts.append(s)
-        return '{}'.format(''.join(parts))
+        return '{0}'.format(''.join(parts))
 
     def transform(self, pattern):
         parts = pattern.split(':')
