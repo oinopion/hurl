@@ -10,4 +10,5 @@ setup(
 #    packages=['hurl'],
     license='New BSD license',
     long_description='',
+    install_requires='django >= 1.3',
 )
