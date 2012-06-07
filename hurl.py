@@ -1,4 +1,5 @@
 from django.core.urlresolvers import RegexURLPattern
+from django.core.exceptions import ImproperlyConfigured
 
 class Hurl(object):
     default_matcher = 'slug'
@@ -123,3 +124,93 @@ def urlpatterns( prefix, pattern_dict):
     h = Hurl()
     return h.urlpatterns(prefix, pattern_dict)
 
+class Parser(object):
+
+    def parse(self, input_url):
+        parts = []
+
+        text_part = ""
+        started_parameter = False
+
+        for character in input_url:
+            if character == ' ':
+                if started_parameter and text_part:
+                    text_part += character
+                continue
+            elif character in ['/', '<']:
+                if started_parameter:
+                    raise ImproperlyConfigured("Missing '>'.")
+                if character == '<':
+                    started_parameter = True
+                if text_part:
+                    parts.append(StaticPart(text_part))
+                    text_part = ''
+            elif character == '>':
+                if not started_parameter:
+                    raise ImproperlyConfigured("Missing '<'.")
+                started_parameter = False
+
+                name_type = [part.strip() for part in text_part.split(':')]
+                if len(name_type) > 2:
+                    raise ImproperlyConfigured("Cannot use more than one colon in parameter.")
+                elif len(name_type) == 1:
+                    name_type.append(None)
+
+                [name, type] = name_type
+                if name and len(name.strip().split(" ")) > 1:
+                    raise ImproperlyConfigured("Name of parameter cannot contain spaces.")
+
+                if type and len(type.strip().split(" ")) > 1:
+                    raise ImproperlyConfigured("Type of parameter cannot contain spaces.")
+
+                parts.append(PatternPart(name, type))
+                text_part = ""
+            else:
+                text_part += character
+        if started_parameter:
+            raise ImproperlyConfigured("Missing '>'.")
+        if text_part.strip() != '':
+            parts.append(StaticPart(text_part))
+        return parts
+
+
+class StaticPart(object):
+
+    def __init__(self, pattern):
+        self.pattern = pattern
+
+    def __eq__(self, other):
+        if isinstance(other, StaticPart):
+            return self.pattern == other.pattern
+        return NotImplemented
+
+    def __ne__(self, other):
+        result = self.__eq__(other)
+        if result is NotImplemented:
+            return result
+        return not result
+
+
+class PatternPart(object):
+
+    def __init__(self, name=None, type=None):
+        if name != None and type != None:
+            self.name = name
+            self.type = name
+        elif name != None:
+            self.name = name
+            self.type = name
+        else:
+            self.name = ''
+            self.type = type
+
+    def __eq__(self, other):
+        if isinstance(other, PatternPart):
+            return (self.name == other.name)# and self.type == other.type)
+        return NotImplemented
+
+    def __ne__(self, other):
+        result = self.__eq__(other)
+        if result is NotImplemented:
+            return result
+        return not result

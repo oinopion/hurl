@@ -1,3 +1,10 @@
 MANIFEST
+include
+lib
+local
+bin
 build
 dist
+*.pyc
+
+.idea
