@@ -1,9 +1,9 @@
-import unittest
+from django.utils import unittest
 from django.conf.urls import include, patterns
 from django.core.exceptions import ImproperlyConfigured
 import hurl
 
-class BasicPatterns(unittest.TestCase):
+class BasicPatternsTest(unittest.TestCase):
     def test_simple_string(self):
         h = hurl.Hurl()
         result = h.patterns('', {
@@ -199,6 +199,7 @@ class BasicPatterns(unittest.TestCase):
         )
         self.assertTrue(urlpatterns, expected)
 
+<<<<<<< HEAD
 
 
 class TestParser(unittest.TestCase):
