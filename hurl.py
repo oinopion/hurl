@@ -175,42 +175,30 @@ class Parser(object):
 
 
 class StaticPart(object):
-
     def __init__(self, pattern):
         self.pattern = pattern
 
     def __eq__(self, other):
-        if isinstance(other, StaticPart):
+        if type(self) == type(other):
             return self.pattern == other.pattern
-        return NotImplemented
+        return False
 
     def __ne__(self, other):
-        result = self.__eq__(other)
-        if result is NotImplemented:
-            return result
-        return not result
+        return not self.__eq__(other)
 
 
 class PatternPart(object):
-
-    def __init__(self, name=None, type=None):
-        if name != None and type != None:
-            self.name = name
-            self.type = name
-        elif name != None:
-            self.name = name
-            self.type = name
-        else:
-            self.name = ''
-            self.type = type
+    def __init__(self, name='', type=None):
+        if name == '' and type is None:
+            raise TypeError('Either name or type required')
+        self.name = name
+        self.type = type or name
 
     def __eq__(self, other):
-        if isinstance(other, PatternPart):
-            return (self.name == other.name)# and self.type == other.type)
-        return NotImplemented
+        if type(self) == type(other):
+            return self.name == other.name and \
+                   self.type == other.type
+        return False
 
     def __ne__(self, other):
-        result = self.__eq__(other)
-        if result is NotImplemented:
-            return result
-        return not result
+        return not self.__eq__(other)
