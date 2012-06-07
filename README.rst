@@ -1,6 +1,9 @@
 Django Happy Urls
 =================
 
+This is early work. Expect very weird errors.
+Comments/feedback is very welcome, use issues or twitter: https://twitter.com/oinopion 
+
 Django has nice routing, but it's too low level. Regexps are powerful,
 but but have cryptic syntax. This library strives to make writing DRY 
 urls a breeze.
