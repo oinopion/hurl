@@ -197,3 +197,6 @@ class BasicPatterns(unittest.TestCase):
             (r'^(?P<id>[0-9]+)/', 'news.views.details', {}, 'news_details')
         )
         self.assertTrue(urlpatterns, expected)
+
+if __name__ == '__main__':
+    unittest.main()
