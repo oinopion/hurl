@@ -199,8 +199,6 @@ class BasicPatternsTest(unittest.TestCase):
         )
         self.assertTrue(urlpatterns, expected)
 
-<<<<<<< HEAD
-
 
 class TestParser(unittest.TestCase):
 
