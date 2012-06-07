@@ -127,6 +127,13 @@ def urlpatterns( prefix, pattern_dict):
 class Parser(object):
 
     def parse(self, input_url):
+        result = []
+        parts = input_url.split('/')
+        for part in parts:
+            result.extend(self.parse_part(part))
+        return result
+
+    def parse_part(self, input_url):
         parts = []
 
         text_part = ""
@@ -137,11 +144,10 @@ class Parser(object):
                 if started_parameter and text_part:
                     text_part += character
                 continue
-            elif character in ['/', '<']:
+            elif character == '<':
                 if started_parameter:
                     raise ImproperlyConfigured("Missing '>'.")
-                if character == '<':
-                    started_parameter = True
+                started_parameter = True
                 if text_part:
                     parts.append(StaticPart(text_part))
                     text_part = ''
@@ -149,21 +155,7 @@ class Parser(object):
                 if not started_parameter:
                     raise ImproperlyConfigured("Missing '<'.")
                 started_parameter = False
-
-                name_type = [part.strip() for part in text_part.split(':')]
-                if len(name_type) > 2:
-                    raise ImproperlyConfigured("Cannot use more than one colon in parameter.")
-                elif len(name_type) == 1:
-                    name_type.append(None)
-
-                [name, type] = name_type
-                if name and len(name.strip().split(" ")) > 1:
-                    raise ImproperlyConfigured("Name of parameter cannot contain spaces.")
-
-                if type and len(type.strip().split(" ")) > 1:
-                    raise ImproperlyConfigured("Type of parameter cannot contain spaces.")
-
-                parts.append(PatternPart(name, type))
+                parts.append(self.parse_param(text_part))
                 text_part = ""
             else:
                 text_part += character
@@ -173,6 +165,25 @@ class Parser(object):
             parts.append(StaticPart(text_part))
         return parts
 
+    def parse_param(self, param):
+        name_type = [part.strip() for part in param.split(':')]
+        if len(name_type) == 0:
+            raise ImproperlyConfigured("Bad parameter")
+        elif len(name_type) == 1:
+            name = name_type[0].strip()
+            type = None
+        elif len(name_type) == 2:
+            name, type = name_type
+        else:
+            raise ImproperlyConfigured("Cannot use more than one colon in parameter.")
+
+        if name and len(name.strip().split(" ")) > 1:
+            raise ImproperlyConfigured("Name of parameter cannot contain spaces.")
+
+        if type and len(type.strip().split(" ")) > 1:
+            raise ImproperlyConfigured("Type of parameter cannot contain spaces.")
+
+        return PatternPart(name, type)
 
 class StaticPart(object):
     def __init__(self, pattern):

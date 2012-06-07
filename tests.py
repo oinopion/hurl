@@ -324,6 +324,10 @@ class TestParser(unittest.TestCase):
         input_text = "><:int/blog/"
         self.assertRaises(ImproperlyConfigured, parser.parse, input_text)
 
+        parser = hurl.Parser()
+        input_text = "<asdf:/asdfas>"
+        self.assertRaises(ImproperlyConfigured, parser.parse, input_text)
+
         input_text = "<:int/>blog/"
         self.assertRaises(ImproperlyConfigured, parser.parse, input_text)
 
