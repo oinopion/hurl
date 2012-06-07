@@ -1,8 +1,8 @@
-import unittest
+from django.utils import unittest
 from django.conf.urls import include, patterns
 import hurl
 
-class BasicPatterns(unittest.TestCase):
+class BasicPatternsTest(unittest.TestCase):
     def test_simple_string(self):
         h = hurl.Hurl()
         result = h.patterns('', {
