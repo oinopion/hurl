@@ -9,8 +9,10 @@ class Hurl(object):
     }
 
     def __init__(self, name_prefix=''):
-        self.name_prefix = name_prefix
         self.matchers = dict(self.DEFAULT_MATCHERS)
+        self.name_prefix = name_prefix
+        self.parser = Parser()
+
 
     def urlpatterns(self, prefix, pattern_dict):
         patterns = self.patterns(prefix, pattern_dict)
@@ -29,17 +31,17 @@ class Hurl(object):
 
     def patterns_recursive(self, pattern_dict):
         urls = []
-        for url, view in pattern_dict.items():
+        for url, view_or_dict in pattern_dict.items():
             re_str = self.make_re_str(url)
-            if isinstance(view, dict):
-                re_list = self.patterns_recursive(view)
+            if isinstance(view_or_dict, dict):
+                re_list = self.patterns_recursive(view_or_dict)
                 for pattern, view_name in re_list:
                     if pattern == '':
                         urls.append((re_str, view_name))
                     else:
                         urls.append((re_str + '/' + pattern, view_name))
             else:
-                urls.append((re_str, view))
+                urls.append((re_str, view_or_dict))
         return urls
 
     def add_prefix_suffix(self, urls):
@@ -63,41 +65,9 @@ class Hurl(object):
         return new_urls
 
     def make_re_str(self, url):
-        parts = []
-        s = ''
-        for c in url:
-            if c == '<':
-                parts.append(s)
-                s = ''
-            elif c == '>':
-                parts.append(self.transform(s))
-                s = ''
-            else:
-                s += c
-        parts.append(s)
-        return '{0}'.format(''.join(parts))
-
-    def transform(self, pattern):
-        parts = pattern.split(':')
-        if len(parts) == 1:
-            name = parts[0]
-            type = name
-        elif len(parts) == 2:
-            name, type = parts
-        else:
-            raise StandardError('Fix')
-        matcher = self.generate_matcher(type)
-        if name:
-            return r'(?P<{name}>{matcher})'.format(name=name, matcher=matcher)
-        else:
-            return r'({matcher})'.format(matcher=matcher)
-
-
-    def generate_matcher(self, type):
-        try:
-            return self.matchers[type]
-        except KeyError:
-            return self.matchers[self.default_matcher]
+        parts = self.parser.parse(url)
+        parts = [part.url(self.matchers, self.default_matcher) for part in parts]
+        return '/'.join(parts)
 
     def add_names(self, urls):
         new_urls = []
@@ -123,6 +93,7 @@ class Hurl(object):
 def urlpatterns( prefix, pattern_dict):
     h = Hurl()
     return h.urlpatterns(prefix, pattern_dict)
+
 
 class Parser(object):
 
@@ -185,6 +156,7 @@ class Parser(object):
 
         return PatternPart(name, type)
 
+
 class StaticPart(object):
     def __init__(self, pattern):
         self.pattern = pattern
@@ -196,6 +168,9 @@ class StaticPart(object):
 
     def __ne__(self, other):
         return not self.__eq__(other)
+
+    def url(self, matchers, default_matcher):
+        return self.pattern
 
 
 class PatternPart(object):
@@ -213,3 +188,16 @@ class PatternPart(object):
 
     def __ne__(self, other):
         return not self.__eq__(other)
+
+    def url(self, matchers, default_matcher):
+        m = self.matcher(matchers, default_matcher)
+        if self.name:
+            return r'(?P<{name}>{matcher})'.format(name=self.name, matcher=m)
+        else:
+            return r'({matcher})'.format(matcher=m)
+
+    def matcher(self, matchers, default_matcher):
+        try:
+            return matchers[self.type]
+        except KeyError:
+            return matchers[default_matcher]
