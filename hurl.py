@@ -23,8 +23,10 @@ def patterns(prefix, pattern_dict):
     h = Hurl()
     return h.patterns(prefix, pattern_dict)
 
+
 def include(arg, namespace=None, app_name=None):
     return ViewSpec(view=(arg, namespace, app_name))
+
 
 class Hurl(object):
     def __init__(self, name_prefix=''):
