@@ -1,6 +1,6 @@
 import re
 from collections import Callable
-from django.conf.urls import patterns as urls_patterns
+from django.conf.urls import url, include, patterns as urls_patterns
 from django.core.exceptions import ImproperlyConfigured
 
 __all__ = 'Hurl', 'ViewSpec', 'v', 'patterns'
@@ -8,7 +8,8 @@ __all__ = 'Hurl', 'ViewSpec', 'v', 'patterns'
 DEFAULT_MATCHER = 'slug'
 DEFAULT_MATCHERS = {
     'int': r'\d+',
-    'slug': r'[\w-]+'
+    'slug': r'[\w-]+',
+    'str': r'[^/]+',
 }
 
 PATH_SEPARATOR = '/'
