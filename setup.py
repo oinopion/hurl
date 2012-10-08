@@ -10,7 +10,7 @@ setup(
     url='https://github.com/oinopion/hurl',
     author='Tomek Paczkowski & Aleksandra Sendecka',
     author_email='tomek@hauru.eu',
-    version='1.1.dev',
+    version='2.0',
     license='New BSD license',
     long_description=open(README).read(),
 )
