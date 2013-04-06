@@ -19,6 +19,11 @@ PATTERN_RE = re.compile(r'<([\w:]+?)>')
 NAMED_TEMPLATE = r'(?P<{name}>{matcher})'
 ANON_TEMPLATE = r'({matcher})'
 
+try:
+    string_type = basestring
+except NameError:
+    string_type = str
+
 
 def patterns(prefix, pattern_dict):
     h = Hurl()
@@ -71,8 +76,9 @@ class Hurl(object):
 
 # internals
 
+
 def build_tree(url_conf, pattern=''):
-    if isinstance(url_conf, (basestring, Callable)):
+    if isinstance(url_conf, (string_type, Callable)):
         url_conf = ViewSpec(url_conf)
     if isinstance(url_conf, ViewSpec):
         return UrlLeaf(pattern, view=url_conf)
@@ -130,10 +136,10 @@ class UrlLeaf(object):
 def view_name(view, name=None):
     if name:
         return name
-    if isinstance(view, basestring):
+    if isinstance(view, string_type):
         return view.split('.')[-1]
     if isinstance(view, Callable):
-        return getattr(view, 'func_name')
+        return getattr(view, '__name__')
 
 
 def finalize_pattern(pattern):
