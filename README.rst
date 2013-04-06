@@ -1,8 +1,7 @@
 Django Happy Urls
 =================
 
-This is early work. Expect very weird errors.
-Comments/feedback is very welcome, use issues or twitter: https://twitter.com/oinopion 
+Comments/feedback is very welcome, use issues or twitter: https://twitter.com/oinopion
 
 .. image:: https://secure.travis-ci.org/oinopion/hurl.png
 
