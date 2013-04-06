@@ -1,7 +1,8 @@
 Django Happy Urls
 =================
 
-Comments/feedback is very welcome, use issues or twitter: https://twitter.com/oinopion
+Comments/feedback is very welcome, use issues or twitter:
+https://twitter.com/oinopion
 
 .. image:: https://secure.travis-ci.org/oinopion/hurl.png
 
@@ -63,15 +64,17 @@ patterns (prefix, url_conf)
     * url_conf is either a dictionary or a list of 2-tuples
         The key (in dict) or first element (tuple) is a url fragment,
         value/second element can be one of: another url_conf, a string, an instance
-        of ViewSpec.
+        of ViewSpec::
 
-        {
-            'show': 'blog.views.show_entry',
-        }
-        is equivalent to
-        [
-            ('show', 'blog.views.show_entry'),
-        ]
+            {
+                'show': 'blog.views.show_entry',
+            }
+
+        is equivalent to::
+
+            [
+                ('show', 'blog.views.show_entry'),
+            ]
 
         URL conf creates a tree of url fragments and generates a list
         by joining each fragment with the "/"::
@@ -83,25 +86,26 @@ patterns (prefix, url_conf)
                 }
             }
 
-        This will generate urls::
+        This will generate these urls::
 
-            (r'^entries/edit/$', 'edit_entry')
-            (r'^entries/delete/$', 'delete_entry')
+            (r'^entries/edit/$', 'edit_entry', name='edit_entry')
+            (r'^entries/delete/$', 'delete_entry', name='edit_entry')
 
 
         Url fragment may include multiple parameters in format::
 
-       '<parameter_name:parameter_type>'
+            '<parameter_name:parameter_type>'
 
-       parameter_name can be any python identifier
-       parameter_type must be one of default or defined matchers
+        parameter_name can be any python identifier
+        parameter_type must be one of default or defined matchers
 
-       If you have parameter_type same as parameter_name, you can skip
-       duplication and use shorter form::
+        If you have parameter_type same as parameter_name, you can skip
+        duplication and use shorter form::
+
             '<int:int>' -> '<int>'
 
-
         If you want to use default matcher also use shortcut::
+
             '<blog_slug:slug>' -> '<blog_slug>'
 
         If you don't want to define parameter name, leave it empty::
