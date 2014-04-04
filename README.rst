@@ -119,12 +119,12 @@ Default Matchers
 
     :slug:
 
-        r'[\w-]+'
+        r'[\\w-]+'
         This is the default matcher.
 
     :int:
 
-        r'\d+'
+        r'\\d+'
 
     :str:
 
